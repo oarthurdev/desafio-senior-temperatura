@@ -42,8 +42,10 @@
 </div>
 <div class="row">
     <div style="col-md-12">
-        <span>{{previsao.cidade.toponymName}} / {{previsao.estado.adminName1}}</span>
-        <a href="#" ng-click="salvarCidade()">Salvar como cidade padrão</a>
+        <div class="text-center">
+            <span>{{previsao.cidade.toponymName}} / {{previsao.estado.adminCodes1.ISO3166_2}}</span><br />
+            <a href="#" ng-click="salvarCidade()">Salvar como cidade padrão</a>
+        </div><br />
     </div>
 </div>
 <div class="row" ng-if="previsao.resultados && previsao.resultados.data && previsao.resultados.data.length > 0">
@@ -72,7 +74,7 @@
         </div>
     </div>
 </div>
-<div class="row" ng-if="previsao.resultados && previsao.resultados.data && previsao.resultados.data.length > 0">
+<!-- <div class="row" ng-if="previsao.resultados && previsao.resultados.data && previsao.resultados.data.length > 0">
     <div class="col-md-12">
         <span>{{previsao.cidade.toponymName}} / {{previsao.estado.adminName1}}</span>
         <a href="#" ng-click="salvarCidade()">Salvar como cidade padrão</a>
@@ -130,6 +132,6 @@
                     <ul uib-pagination total-items="(previsaos | filter:search).length" ng-model="pagination.currentPage" items-per-page="pagination.pageSize" class="pagination-margin"></ul>
                 </div>
             </div>
-        </div>
+        </div> -->
     </div>
 </div>

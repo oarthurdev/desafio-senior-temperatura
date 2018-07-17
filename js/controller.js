@@ -10,6 +10,8 @@ angular
     $scope.estados = [];
     $scope.cidades = [];
 
+    console.log($scope.estados);
+
     $scope.buscaCidade = function(callback){
         $http.get("http://www.geonames.org/childrenJSON?geonameId="+$scope.previsao.estado.geonameId+"&style=long")
         .then(function(response){
