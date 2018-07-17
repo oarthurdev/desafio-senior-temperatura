@@ -1,0 +1,3 @@
+### Getting Started ###
+
+> bower install

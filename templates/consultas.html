@@ -1,0 +1,135 @@
+<div class="row">
+    <div class="col-md-12">
+        <form name="previsaoForm">
+            <div class="panel panel-primary panel-novo-previsao">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Consultar Previsão do tempo por cidade</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label>Estado</label>
+                                <select 
+                                    name="estados-brasil" 
+                                    class="form-control" 
+                                    ng-options="estado as estado.adminName1 for estado in estados track by estado.geonameId" 
+                                    ng-change="buscaCidade()"
+                                    ng-model="previsao.estado">
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-10" ng-if="previsao.estado && cidades.length > 0">
+                            <div class="form-group">
+                                <label for="cidade">Cidade</label>
+                                <input 
+                                    type="text" 
+                                    ng-model="previsao.cidade"
+                                    uib-typeahead="cidade as cidade.toponymName for cidade in cidades | filter:$viewValue | limitTo:8" 
+                                    typeahead-on-select="getPrevisao()"
+                                    class="form-control" />
+                                <!-- <input type="text" ng-required="true" ng-model="previsao.cidade" class="form-control cidade" name="cidade" id="cidade"/> -->
+                            </div>
+
+                            
+                        </div>
+                    </div>                    
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+</div>
+<div class="row">
+    <div style="col-md-12">
+        <span>{{previsao.cidade.toponymName}} / {{previsao.estado.adminName1}}</span>
+        <a href="#" ng-click="salvarCidade()">Salvar como cidade padrão</a>
+    </div>
+</div>
+<div class="row" ng-if="previsao.resultados && previsao.resultados.data && previsao.resultados.data.length > 0">
+    <div class="col-sm-12 col-md-4" ng-repeat="infos in previsao.resultados.data">
+        <div class="forecast-cards">
+            <a class="transparent" href="previsao-do-tempo/15-dias/cidade/558/saopaulo-sp"></a>
+    
+            <div class="clearfix icone">
+            <ul class="icon-default icon-2n icon-style" arial-label="Previsão do dia 19/07">
+                <li class="icon-sun1 yellow-sun"></li>
+                <li class="icon-cloud2 blue-cloud"></li>
+            
+            </ul>
+        </div>
+            <div class="forecast-period">
+                <div class="day-title">
+                    <b>{{infos.date_br}}</b>
+                </div>
+                <div class="temperatures">
+                    Máxima {{infos.temperature.max}}° - Mínima {{infos.temperature.min}}°
+                </div>
+                <span class="icon-drop "></span>
+                <span class="icon-drop "></span>
+                <span class="icon-drop "></span>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row" ng-if="previsao.resultados && previsao.resultados.data && previsao.resultados.data.length > 0">
+    <div class="col-md-12">
+        <span>{{previsao.cidade.toponymName}} / {{previsao.estado.adminName1}}</span>
+        <a href="#" ng-click="salvarCidade()">Salvar como cidade padrão</a>
+
+        <div ng-repeat="infos in previsao.resultados.data">
+            <div style="float: left; margin: 8px;">
+                {{infos.date_br}}
+            </div> 
+            <div style="float: left; text-align: center;">
+                <span class="label label-primary">{{infos.temperature.min}}º</span>
+                <br />
+                <small>Min</small>
+            </div>
+            <div style="float: left; text-align: center;">
+                <span class="label label-danger">{{infos.temperature.max}} º</span>
+                <br />
+                <small>Max</small>
+            </div>
+            <div style="clear: both;"></div>
+        </div>
+
+
+        <form class="form-horizontal" role="form">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Resultados</h3>
+                    <span>{{previsao.cidade.toponymName}} / {{previsao.estado.adminName1}}</span>
+                    <a ng-click="salvarCidade()">Salvar como cidade padrão</a>
+                </div>
+                <div class="panel-body">
+                </form>
+                <div class="row">
+                    <div class="col-md-12">
+                        <table class="table table-condensed">
+                            <thead>
+                                <tr>
+                                    <th class="col-md-2">Tempertatura Minima</th>
+                                    <th class="col-md-2">Temperatura Máxima</th>
+                                    <th class="col-md-2">Data</th>
+                                    <th class="col-md-2">Favorite</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="infos in previsao.resultados.data">
+                                    <td>{{infos.temperature.min}}</td>
+                                    <td>{{infos.temperature.max}}</td>
+                                    <td>{{infos.date_br}}</td>
+                                    <td><input type="checkbox" id="favorite" name="favorite"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="row">
+                    <ul uib-pagination total-items="(previsaos | filter:search).length" ng-model="pagination.currentPage" items-per-page="pagination.pageSize" class="pagination-margin"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,7 @@
+{
+    "data": [
+        {"nome": "João da Silva", "documento": "123456789", "telefone": "9732-4927", "valorGasto" : "999,99"},
+        {"nome": "Maria de Souza", "documento": "456789123", "telefone": "1111-2222", "valorGasto" : "888,99"},
+        {"nome": "Pedro Sauro", "documento": "789456123", "telefone": "6666-6666", "valorGasto" : "1000,00"}
+    ]
+}
