@@ -1,1 +1,3 @@
-# desafio-senior-temperatura
+### Getting Started ###
+
+> bower install
