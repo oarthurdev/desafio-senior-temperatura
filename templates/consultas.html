@@ -26,7 +26,7 @@
                                     type="text" 
                                     ng-model="previsao.cidade"
                                     uib-typeahead="cidade as cidade.toponymName for cidade in cidades | filter:$viewValue | limitTo:8" 
-                                    typeahead-on-select="getPrevisao()"
+                                    typeahead-on-select="getPrevisao(null, true)"
                                     class="form-control" />
                                 <!-- <input type="text" ng-required="true" ng-model="previsao.cidade" class="form-control cidade" name="cidade" id="cidade"/> -->
                             </div>
@@ -43,20 +43,27 @@
 <div class="row">
     <div style="col-md-12">
         <div class="text-center">
-            <span>{{previsao.cidade.toponymName}} / {{previsao.estado.adminCodes1.ISO3166_2}}</span><br />
-            <a href="#" ng-click="salvarCidade()">Salvar como cidade padrão</a>
+            <b><span>{{previsao.cidade.toponymName}} / {{previsao.estado.adminCodes1.ISO3166_2}}</span></b><br />
+            <a href="#" ng-click="salvarCidade()" id="salvarCity" name="salvarCity">Salvar como cidade padrão</a>
         </div><br />
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="alert alert-success" role="alert" id="alert-save" name="alert-save">
+            <strong>Sucesso !</strong> Cidade adicionada como favorito.
+        </div>
     </div>
 </div>
 <div class="row" ng-if="previsao.resultados && previsao.resultados.data && previsao.resultados.data.length > 0">
     <div class="col-sm-12 col-md-4" ng-repeat="infos in previsao.resultados.data">
         <div class="forecast-cards">
-            <a class="transparent" href="previsao-do-tempo/15-dias/cidade/558/saopaulo-sp"></a>
+            <a class="transparent"></a>
     
             <div class="clearfix icone">
             <ul class="icon-default icon-2n icon-style" arial-label="Previsão do dia 19/07">
-                <li class="icon-sun1 yellow-sun"></li>
-                <li class="icon-cloud2 blue-cloud"></li>
+                <img src="https://image.flaticon.com/icons/svg/861/861059.svg" style="margin-left: 5px;" ng-if="infos.rain.probability <= 20" class="icon-sun1 yellow-sun" />
+                <img src="https://image.flaticon.com/icons/svg/148/148828.svg" style="margin-left: 5px;" ng-if="infos.rain.probability >= 50" class="icon-sun1 yellow-sun" />
             
             </ul>
         </div>
@@ -67,13 +74,38 @@
                 <div class="temperatures">
                     Máxima {{infos.temperature.max}}° - Mínima {{infos.temperature.min}}°
                 </div>
-                <span class="icon-drop "></span>
-                <span class="icon-drop "></span>
-                <span class="icon-drop "></span>
+                <div class="probability">
+                    <span style="font-size: 12px;">Chance de chuva: {{infos.rain.probability}}%</span>
+                </div>
+                <div>
+                    <span ng-if="infos.rain.probability <= 20" class="text-primary">Um ótimo dia para dar uma caminhada</span>
+                    <span ng-if="infos.rain.probability >= 50" class="text-danger">Fique em casa para não pegar um resfriado.</span>
+                </div>
             </div>
         </div>
+        
     </div>
 </div>
+<div class="row" ng-if="data[0].length > 0">
+    <div class="col-md-12">
+        <canvas 
+            id="line" 
+            class="chart chart-line" 
+            chart-data="data"
+            chart-labels="labels" 
+            chart-series="series" 
+            chart-options="options"
+            chart-click="onClick"
+            chart-colors="colors"     
+        >
+        </canvas
+    </div>
+</div>
+<!-- <div class="row">
+    <div class="col-md-12">
+        
+    </div>
+</div> -->
 <!-- <div class="row" ng-if="previsao.resultados && previsao.resultados.data && previsao.resultados.data.length > 0">
     <div class="col-md-12">
         <span>{{previsao.cidade.toponymName}} / {{previsao.estado.adminName1}}</span>

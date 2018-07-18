@@ -1,5 +1,5 @@
 angular
-.module("desafioSenior.controller", ['desafioSenior.service'])
+.module("desafioSenior.controller", ['desafioSenior.service', 'chart.js'])
 .controller("desafioSeniorCtrl", ['$scope', 'consultaService','$http', '$state', function($scope, consultaService, $http, $state){
     $scope.app = "Desafio Sênior";
     $scope.pagination = {currentPage: 1, pageSize: 2};
@@ -10,8 +10,28 @@ angular
     $scope.estados = [];
     $scope.cidades = [];
 
-    console.log($scope.estados);
+    $scope.alerts = [
+        { msg: 'Sucesso! Cidade adicionada como favorito' }
+      ];
 
+      console.log($scope.previsao.resultados);
+
+      $scope.labels = [];
+      $scope.series = [];
+      $scope.data = [];
+
+      $scope.colors = ["#ff0202", "#1f02ff"]
+      
+      $scope.onClick = function (points, evt) {
+        console.log(points, evt);
+      };
+      
+      $scope.options = {
+        responsive: true
+      };
+
+
+    console.log($scope.previsao);
     $scope.buscaCidade = function(callback){
         $http.get("http://www.geonames.org/childrenJSON?geonameId="+$scope.previsao.estado.geonameId+"&style=long")
         .then(function(response){
@@ -23,48 +43,71 @@ angular
         })
     };
 
-    $scope.getPrevisao = function(callback){
+    $scope.getPrevisao = function(callback, force){
         let estado = $scope.previsao.estado.adminCodes1.ISO3166_2;
         let cidade = $scope.previsao.cidade.name;
 
-        console.log('getPrevisao')
+        $scope.data = [[], []]
 
-        $http.get("http://apiadvisor.climatempo.com.br/api/v1/locale/city?name="+cidade+"&state="+estado+"&token=90bcb2e00c73d14de7f3c392edaf16d0")
+        $http.get("http://apiadvisor.climatempo.com.br/api/v1/locale/city?name="+cidade+"&state="+estado+"&token=16a7cfd9f7e671ad33b7b980cf56f8f4")
         .then(function(response){
             $private.previsao = response.data;
             let idCity = response.data[0].id;
 
-            $http.get("http://apiadvisor.climatempo.com.br/api/v1/forecast/locale/"+idCity+"/days/15?token=90bcb2e00c73d14de7f3c392edaf16d0")
-            .then(function(response){
-                $private.previsao = response.data;
-                $scope.previsao.resultados = response.data;                console.log($scope.previsao.name);
-                // console.log($scope.previsao);
-                    // let tempMinCity = response.data.data[0].temperature.min;
-                    // let tempMaxCity = response.data.data[0].temperature.max;
-                    // let tempMinCity1 = response.data.data[1].temperature.min;
-                    // let tempMaxCity1 = response.data.data[1].temperature.max;
-                    // let tempMinCity2 = response.data.data[2].temperature.min;
-                    // let tempMaxCity2 = response.data.data[2].temperature.max;
-                    // let tempMinCity3 = response.data.data[3].temperature.min;
-                    // let tempMaxCity3 = response.data.data[3].temperature.max;
-                    // let tempMinCity4 = response.data.data[4].temperature.min;
-                    // let tempMaxCity4 = response.data.data[4].temperature.max;
-                    // let tempMinCity5 = response.data.data[5].temperature.min;
-                    // let tempMaxCity5 = response.data.data[5].temperature.max;
-                    // let tempMinCity6 = response.data.data[6].temperature.min;
-                    // let tempMaxCity6 = response.data.data[6].temperature.max;
+            $http.get("http://apiadvisor.climatempo.com.br/api/v1/forecast/locale/"+idCity+"/days/15?token=16a7cfd9f7e671ad33b7b980cf56f8f4")
+            .then(function(responseClima){
+                $private.previsao = responseClima.data;
+                $scope.previsao.resultados = responseClima.data;
+                console.log($scope.previsao.resultados)
+
+                var dias = []
+                var temperaturas = [[],[]]
+                
+                angular.forEach(responseClima.data.data, function (item, key) {
+                    console.log(2, item)
+                    dias.push(item.date_br)
+                    temperaturas[0].push(item.temperature.max)
+                    temperaturas[1].push(item.temperature.min)
+                })
+                
+                                   
+                console.log(dias, temperaturas)
+                $scope.labels = dias;
+                $scope.series = ['Max', 'Min'];
+                $scope.data = temperaturas;
             });
         });
     };
 
-    console.log($scope.previsao.estado, $scope.previsao.cidade)
-    if($scope.previsao.estado && $scope.previsao.estado.adminName1) {
+    console.log($scope.previsao)
+    console.log($scope.previsao.resultados)
+    
+    if (!$scope.previsao.estado && !$scope.previsao.cidade) {
+        $http.get("estado-default.json")
+        .then(function (response){
+            $scope.previsao.estado = response.data;
+
+            $scope.buscaCidade(function () {
+                $http.get("cidade-default.json")
+                .then(function (response){
+                    $scope.previsao.cidade = response.data;
+
+                    if ($scope.previsao.cidade && $scope.previsao.cidade.toponymName) {
+                        $scope.getPrevisao()
+                    }
+                })                
+            });
+        })
+    }
+    else {
         $scope.buscaCidade(function () {
             if ($scope.previsao.cidade && $scope.previsao.cidade.toponymName) {
                 $scope.getPrevisao()
             }
-        });
+        });        
     }
+
+    
     // $scope.init = function () {
     //     $http.get("http://apiadvisor.climatempo.com.br/api/v1/forecast/locale/5090/days/15?token=90bcb2e00c73d14de7f3c392edaf16d0").then(function(response){
     //         $private.previsao = response.data;
@@ -86,7 +129,11 @@ angular
         localStorage.setItem("cidade", JSON.stringify(angular.copy($scope.previsao.cidade)));
         localStorage.setItem("estado", JSON.stringify(angular.copy($scope.previsao.estado)));
 
-        console.log('Cidade Salva: ', $scope.previsao.cidade)
+        $('#alert-save').show()
+            setTimeout(function () {
+                $('#alert-save').hide()
+            }, 5000)
+
     };
 
     $scope.getState();
