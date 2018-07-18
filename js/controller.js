@@ -1,5 +1,5 @@
 angular
-.module("desafioSenior.controller", ['desafioSenior.service', 'chart.js'])
+.module("desafioSenior.controller", ['chart.js'], 'desafioSenior')
 .controller("desafioSeniorCtrl", ['$scope', '$http', '$state', '$timeout', function($scope, $http, $state, $timeout){
     $scope.app = "Desafio Sênior";
     
