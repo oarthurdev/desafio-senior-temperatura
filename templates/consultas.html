@@ -14,24 +14,27 @@
                                     name="estados-brasil" 
                                     class="form-control" 
                                     ng-options="estado as estado.adminName1 for estado in estados track by estado.geonameId" 
-                                    ng-change="buscaCidade()"
+                                    ng-change="buscaCidade(null, true)"
                                     ng-model="previsao.estado">
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-10" ng-if="previsao.estado && cidades.length > 0">
+                        <div class="col-md-10">
                             <div class="form-group">
                                 <label for="cidade">Cidade</label>
+
+                                <div ng-if="previsao.estado && cidades.length == 0">
+                                    <p class="title-loading">Carregando cidades...</p>
+                                </div>
+                                <div ng-if="previsao.estado && cidades.length > 0">
                                 <input 
                                     type="text" 
                                     ng-model="previsao.cidade"
-                                    uib-typeahead="cidade as cidade.toponymName for cidade in cidades | filter:$viewValue | limitTo:8" 
+                                    uib-typeahead="cidade as cidade.name for cidade in cidades | filter:{name: $viewValue} | limitTo: 8" 
                                     typeahead-on-select="getPrevisao(null, true)"
                                     class="form-control" />
-                                <!-- <input type="text" ng-required="true" ng-model="previsao.cidade" class="form-control cidade" name="cidade" id="cidade"/> -->
-                            </div>
-
-                            
+                                </div>                                
+                            </div>                            
                         </div>
                     </div>                    
                 </div>
@@ -40,7 +43,7 @@
     </div>
 </div>
 </div>
-<div class="row">
+<div class="row" ng-if="previsao.cidade.toponymName">
     <div style="col-md-12">
         <div class="text-center">
             <b><span>{{previsao.cidade.toponymName}} / {{previsao.estado.adminCodes1.ISO3166_2}}</span></b><br />
@@ -53,21 +56,21 @@
         <div class="alert alert-success" role="alert" id="alert-save" name="alert-save">
             <strong>Sucesso !</strong> Cidade adicionada como favorito.
         </div>
+        <div class="alert alert-danger" role="alert" id="alert-error" name="alert-error" ng-if="error != ''">
+            <strong>Ooops !</strong> {{error}}
+        </div>
     </div>
 </div>
 <div class="row" ng-if="previsao.resultados && previsao.resultados.data && previsao.resultados.data.length > 0">
-    <div class="col-sm-12 col-md-4" ng-repeat="infos in previsao.resultados.data">
-        <div class="forecast-cards">
-            <a class="transparent"></a>
-    
-            <div class="clearfix icone">
-            <ul class="icon-default icon-2n icon-style" arial-label="Previsão do dia 19/07">
-                <img src="https://image.flaticon.com/icons/svg/861/861059.svg" style="margin-left: 5px;" ng-if="infos.rain.probability <= 20" class="icon-sun1 yellow-sun" />
-                <img src="https://image.flaticon.com/icons/svg/148/148828.svg" style="margin-left: 5px;" ng-if="infos.rain.probability >= 50" class="icon-sun1 yellow-sun" />
-            
-            </ul>
-        </div>
-            <div class="forecast-period">
+    <div class="col-xs-12 col-sm-6 col-md-4" ng-repeat="infos in previsao.resultados.data">
+        <div class="row item-previsao">            
+            <div class="col-xs-5 col-md-5 coluna-icone-previsao">
+                <img src="https://image.flaticon.com/icons/svg/861/861060.svg" class="image-previsao" ng-if="infos.rain.probability <= 20" class="icon-sun1 yellow-sun" />
+                <img src="https://image.flaticon.com/icons/svg/148/148828.svg" class="image-previsao" ng-if="infos.rain.probability > 20 && infos.rain.probability < 40" class="icon-sun1 yellow-sun" />
+                <img src="https://image.flaticon.com/icons/svg/945/945029.svg" class="image-previsao" ng-if="infos.rain.probability >= 40 && infos.rain.probability < 70" class="icon-sun1 yellow-sun" />
+                <img src="https://image.flaticon.com/icons/svg/945/945069.svg" class="image-previsao" ng-if="infos.rain.probability >= 70" class="icon-sun1 yellow-sun" />
+            </div>
+            <div class="col-xs-7 col-md-7">
                 <div class="day-title">
                     <b>{{infos.date_br}}</b>
                 </div>
@@ -79,11 +82,10 @@
                 </div>
                 <div>
                     <span ng-if="infos.rain.probability <= 20" class="text-primary">Um ótimo dia para dar uma caminhada</span>
-                    <span ng-if="infos.rain.probability >= 50" class="text-danger">Fique em casa para não pegar um resfriado.</span>
+                    <span ng-if="infos.rain.probability >= 50" class="text-danger">Se for sair, leve o guarda-chuva.</span>
                 </div>
             </div>
-        </div>
-        
+        </div>        
     </div>
 </div>
 <div class="row" ng-if="data[0].length > 0">

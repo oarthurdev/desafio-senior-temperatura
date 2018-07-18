@@ -1,46 +1,46 @@
 angular
 .module("desafioSenior.controller", ['desafioSenior.service', 'chart.js'])
-.controller("desafioSeniorCtrl", ['$scope', 'consultaService','$http', '$state', function($scope, consultaService, $http, $state){
+.controller("desafioSeniorCtrl", ['$scope', '$http', '$state', '$timeout', function($scope, $http, $state, $timeout){
     $scope.app = "Desafio Sênior";
-    $scope.pagination = {currentPage: 1, pageSize: 2};
-
+    
     $scope.previsao = {};
     $scope.previsao.cidade = JSON.parse(localStorage.getItem("cidade"));
     $scope.previsao.estado = JSON.parse(localStorage.getItem("estado"));
     $scope.estados = [];
     $scope.cidades = [];
+    $scope.error = ""
 
-    $scope.alerts = [
-        { msg: 'Sucesso! Cidade adicionada como favorito' }
-      ];
+    $scope.labels = [];
+    $scope.series = [];
+    $scope.data = [];
 
-      console.log($scope.previsao.resultados);
+    $scope.colors = ["#ff0202", "#1f02ff"]
 
-      $scope.labels = [];
-      $scope.series = [];
-      $scope.data = [];
-
-      $scope.colors = ["#ff0202", "#1f02ff"]
-      
-      $scope.onClick = function (points, evt) {
-        console.log(points, evt);
-      };
-      
-      $scope.options = {
+    $scope.options = {
         responsive: true
-      };
+    };
 
+    $scope.buscaCidade = function(callback, clear){
 
-    console.log($scope.previsao);
-    $scope.buscaCidade = function(callback){
+        if (clear) {
+            $scope.cidades = []
+            $scope.previsao.cidade = null
+        }
+        
         $http.get("http://www.geonames.org/childrenJSON?geonameId="+$scope.previsao.estado.geonameId+"&style=long")
         .then(function(response){
             $scope.cidades = response.data.geonames;
-
             if (callback) {
                 callback()
             }
         })
+        .catch(function(e){
+            $scope.error = "Estamos com algum problema na conexão, tente novamente mais tarde."
+            $timeout(function () {
+                $scope.error = ""
+            }, 5000)
+
+        });
     };
 
     $scope.getPrevisao = function(callback, force){
@@ -58,30 +58,35 @@ angular
             .then(function(responseClima){
                 $private.previsao = responseClima.data;
                 $scope.previsao.resultados = responseClima.data;
-                console.log($scope.previsao.resultados)
 
                 var dias = []
                 var temperaturas = [[],[]]
                 
                 angular.forEach(responseClima.data.data, function (item, key) {
-                    console.log(2, item)
                     dias.push(item.date_br)
                     temperaturas[0].push(item.temperature.max)
                     temperaturas[1].push(item.temperature.min)
                 })
                 
-                                   
-                console.log(dias, temperaturas)
                 $scope.labels = dias;
                 $scope.series = ['Max', 'Min'];
                 $scope.data = temperaturas;
+            })
+            .catch(function(e){
+                $scope.error = "Estamos com algum problema na conexão, tente novamente mais tarde."
+                $timeout(function () {
+                        $scope.error = ""
+                    }, 5000)
             });
+        })
+        .catch(function(e){
+            $scope.error = "Estamos com algum problema na conexão, tente novamente mais tarde."
+            $timeout(function () {
+                $scope.error = ""
+            }, 5000)
         });
     };
 
-    console.log($scope.previsao)
-    console.log($scope.previsao.resultados)
-    
     if (!$scope.previsao.estado && !$scope.previsao.cidade) {
         $http.get("estado-default.json")
         .then(function (response){
@@ -95,7 +100,14 @@ angular
                     if ($scope.previsao.cidade && $scope.previsao.cidade.toponymName) {
                         $scope.getPrevisao()
                     }
-                })                
+                })
+                .catch(function(e){
+                    $scope.error = "Estamos com algum problema na conexão, tente novamente mais tarde."
+                    $timeout(function () {
+                        $scope.error = ""
+                    }, 5000)
+        
+                });                
             });
         })
     }
@@ -107,17 +119,6 @@ angular
         });        
     }
 
-    
-    // $scope.init = function () {
-    //     $http.get("http://apiadvisor.climatempo.com.br/api/v1/forecast/locale/5090/days/15?token=90bcb2e00c73d14de7f3c392edaf16d0").then(function(response){
-    //         $private.previsao = response.data;
-    //         //callback(response.data);
-    //         let tempMin = response.data.data[0].temperature.min;
-    //         let tempMax = response.data.data[0].temperature.max;
-    //     });
-    // };
-
-    // $scope.init();
     $scope.getState = function(){
         $http.get("estados.json")
         .then(function (response){

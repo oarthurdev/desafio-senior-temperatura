@@ -4,6 +4,5 @@ var app = angular
          'ui.bootstrap',
          'ngLocale',
          'desafioSenior.controller',
-         'desafioSenior.customHeader',
-        'desafioSenior.filter.startFrom'
+         'desafioSenior.customHeader'
 ]);
